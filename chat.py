@@ -10,7 +10,7 @@ from sqlalchemy import or_
 from datetime import datetime, timedelta
 from dateutil import parser
 from random import getrandbits
-from models import db, User, Event, populateDB
+from models import db, User, Room, populateDB
 
 def create_app():
     app = Flask(__name__)
@@ -18,7 +18,7 @@ def create_app():
     
     app.config.update(dict(
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        SECRET_KEY='erl67',
+        SECRET_KEY='erl67_',
         TEMPLATES_AUTO_RELOAD=True,
         SQLALCHEMY_DATABASE_URI='sqlite:///' + DB_NAME
     ))
