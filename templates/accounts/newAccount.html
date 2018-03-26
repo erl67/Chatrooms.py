@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Signup for Customer Account! - {{ super() }}{% endblock %}
+
+{% block body %}
+
+{% if g.user.id==1 %}
+	<h3 id='first'>Create New Staff Account</h3>
+{% endif %}
+		<form action="" method="post">
+			Username:  <input type="text" name="user" maxlength="16" minlength="1" required/>
+			<br />
+			Password:  <input type="text" name="pass" maxlength="16" minlength="1" required/>
+			<br />
+			Email:  <input type="email" name="mail" />
+			<br />
+			<input type="submit" value="submit" />
+		</form>
+{% endblock %}
+
+{% block script %}
+	// template
+	f = document.getElementById('flashbox');
+	b = document.getElementById('page-main');
+	if (f != null) b.prepend(f);
+	// template
+{% endblock %}

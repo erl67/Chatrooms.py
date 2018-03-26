@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Eric Laslo">
+<meta name="description" content="CS1520 Assignment 3 - ERL67">
+<link rel="stylesheet" type="text/css" href="/static/style.css?{{ range(0, 9999) | random  }}">
+<script src="/static/color.js" type="text/javascript"></script>
+{# <script src="http://ericlaslo.com/assets/code/footerbar.js" type="text/javascript"></script> #}
+<title>{% block title %}ERL67 catering{% endblock %}</title>
+{% block head %}
+{% endblock %}
+</head>
+<body id="page">
+<header>
+  {% with messages = get_flashed_messages() %}
+	{% if messages %}
+		<ul class="flashes" id="flashbox">
+			{% for m in messages %}
+				<li>{{ m }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+	{% endwith %}
+{% block header %}
+{% endblock %}
+
+  {% if g.user %}
+  	logged in as: {{ g.user.username }}
+  	<br/><br/>
+{#    <a href="{{ url_for('profile', uid=g.user.id) }}">profile</a>#}
+    {% if g.user.staff==False %}
+    	<a href="{{ url_for('customer', uid=g.user.id) }}">customer page</a>
+    {% elif g.user.id==1 %}
+    	<a href="{{ url_for('owner')}}">owner page</a><br/>
+    	<a href="{{ url_for('rawstats')}}" style="font-size:60%">raw data</a>
+    {% elif g.user.staff==True %}
+    	<a href="{{ url_for('staff', uid=g.user.id) }}">staff page</a>
+    {% else %}
+    	<a href="#">page not found</a>
+    {% endif %}
+    
+    <br/>
+    <a href="{{ url_for('unlogger') }}">sign out</a>
+    
+  {% else %}
+  	<h2>Login or Register for access</h2>
+  
+    <a href="{{ url_for('logger') }}">sign in</a>
+    <a href="{{ url_for('signer') }}">register</a> 
+    
+  {% endif %}
+  
+
+</header>
+<div id="page-main">
+{% block body %}
+{% endblock %}
+
+{% if not g.user %}
+{% endif %}
+</div>
+
+<script type='text/javascript' id='footer'>
+{% block script %}
+{% endblock %}
+	colorize(['page']);
+	colorizeText(['page'], true);
+{#	footerBar();#}
+</script>
+</body>
+</html>

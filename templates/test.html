@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}TEST{% endblock %}
+{% block head %}
+<script src="http://ericlaslo.com/assets/code/footerbar.js" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+
+<pre>
+
+{{ testMessage }}
+
+</pre>
+
+<script type='text/javascript'>
+window.onload = function(){ 
+	document.getElementById('page').removeAttribute('style');
+	document.getElementsByTagName('body')[0].removeAttribute('style');
+	document.getElementsByTagName('html')[0].removeAttribute('style');
+}
+
+footerBar();
+</script>
+{% endblock %}

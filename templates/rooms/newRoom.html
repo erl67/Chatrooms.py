@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Request New Event! - {{ super() }}{% endblock %}
+
+{% block body %}
+		<form action="" method="post">
+			Event name:  <input type="text" name="ename" minlength="5" maxlength="75" required/>
+			<br />
+			Client:      
+			{% if g.user.id==1 %}
+				<input type="text" name="eclient" placeholder="{{ g.user.username }}" disabled title="Request not used. Owner will be client"/>
+		    {% else %}
+				<input type="text" name="eclient" placeholder="{{ g.user.username }}" title="request not used" disabled/>
+    		{% endif %}
+			<br />
+			Date:  <input type="date" name="edate" min="{{now}}" max="{{later}}" required/>
+			<br />
+			<input type="submit" value="submit" />
+		</form>
+{% endblock %}
+
+{% block script %}
+	// template
+	f = document.getElementById('flashbox');
+	b = document.getElementById('page-main');
+	if (f != null) b.prepend(f);
+	// template
+{% endblock %}

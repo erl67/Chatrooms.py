@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %} {{event.eventname}} - {{ super() }} {% endblock %}
+
+{% block body %}
+
+	{% if event == [] %}
+		<h4>Event Not Found. This shouldn't happen</h4>
+	{% else %}
+		<h2>{{event.eventname}}</h2>
+		
+		<h3>Event Date: {{event.date.strftime('%d %B, %y')}}</h3>
+		<br/>
+		
+		<h3>Client: {{ getName(event.client) }}<h3>
+		<br/>
+			
+		{% if event.staff1 == None and event.staff2 == None and event.staff3 == None %}
+			<h3>No staff scheduled</h3>
+		{% else %}
+			<h4>Currently scheduled employees:</h4>
+		{% endif %}
+		
+		<ul>
+			<li>
+			{% if event.staff1 != None %}
+				{{getName(event.staff1)}}</li>
+			{% endif %}
+			</li>
+			<li>
+			{% if event.staff2 != None %}
+				{{getName(event.staff2)}}
+			{% endif %}
+			</li>
+			<li>
+			{% if event.staff3 != None %}
+				{{getName(event.staff3)}}
+			{% endif %}
+			</li>
+		</ul>
+		<br/><hr>			
+		
+		{% if event.staff1 == None or event.staff2 == None or event.staff3 == None %}
+			{% if event.staff1 != g.user.id and event.staff2 != g.user.id and event.staff3 != g.user.id %}
+				<h4><a href="{{url_for('eventsign', eid=event.id)}}">Signup for this event</a></h4>
+			{% else %}
+				<h6>Already registered for this event</h6>
+			{% endif %}
+		{% endif %}
+		
+	{% endif %}
+
+{% endblock %}

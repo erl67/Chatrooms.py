@@ -1,0 +1,109 @@
+html, body {
+	margin: 0 auto;
+	padding: 1em;
+	width: 90%;
+	margin: 0 auto;
+	box-sizing: border-box;
+	display: flex; 
+	flex-direction: column;
+	justify-content: space-evenly;
+	align-items: center;
+    font-weight: bold;
+}
+#page {
+}
+h1, h2, h3, h4, h5, h6{
+	text-align: center;
+}
+div {
+	padding: 1em;
+	margin: .5em;
+}
+a {
+	color: inherit;
+	text-decoration: underline;
+	font-size: larger;
+}
+a:hover {
+	color: inherit;
+	background: #ddd;
+	text-decoration: none;
+}
+.room-list {
+	border: 1px dashed #c0c0c0;
+	width: 100%;
+}
+.event-list-link {
+	margin-right: 2em;
+	text-decoration: none;
+}
+.event-list-item {
+	padding: .5em;
+	list-style-type: square;
+/* 	width: 100%; */
+}
+ul {
+	display: flex; 
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+li {
+	display: flex; 
+	flex-direction: row;
+	justify-content: space-between;
+/* 	list-style-type: none; */
+}
+.room-empty {
+	border: 2px dashed red;
+	padding: .1em;
+	font-variant: small-caps;
+	cursor: help;
+/* 	margin-left: 3em; */
+}
+
+.flashes {
+	margin-top: 0;
+	margin-left: 1em;
+	margin-bottom: 3em;
+	font-variant: small-caps;
+	box-shadow:0px 0px 3em 2em #b06259 ;
+	padding: 1.5em;
+	list-style-type: circle;
+}
+
+header {
+    position:absolute;
+    top:0;
+    left:0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	font-size: smaller;
+	padding: 1.5em;
+}
+input:valid {
+	background-color: rgba(157, 223, 154, 0.9);
+}
+input:invalid {
+	background-color: rgba(225, 85, 85, 0.7);
+}
+input, select {
+	margin-top: 1em;
+	margin-bottom: 2em;
+	padding: .3em;
+	text-align: center;
+}
+input[type=submit], button {
+	font-size: 1.2em;
+	background-color: buttonface;
+	css: -webkit-appearance: none;
+}
+input:focus {
+	background-color: rgba(239, 238, 203, 0.9);
+}
+form {
+	text-align: center;
+}
+select {
+	padding: 1em;
+}
