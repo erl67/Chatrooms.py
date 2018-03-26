@@ -102,3 +102,4 @@ ENV/
 /.project
 /.pydevproject
 /chat.db
+/js15_ajax.html

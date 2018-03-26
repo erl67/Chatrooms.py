@@ -31,12 +31,8 @@
   	<br/><br/>
 {#    <a href="{{ url_for('profile', uid=g.user.id) }}">profile</a>#}
     {% if g.user.staff==False %}
-    	<a href="{{ url_for('customer', uid=g.user.id) }}">customer page</a>
     {% elif g.user.id==1 %}
-    	<a href="{{ url_for('owner')}}">owner page</a><br/>
     	<a href="{{ url_for('rawstats')}}" style="font-size:60%">raw data</a>
-    {% elif g.user.staff==True %}
-    	<a href="{{ url_for('staff', uid=g.user.id) }}">staff page</a>
     {% else %}
     	<a href="#">page not found</a>
     {% endif %}
@@ -59,6 +55,7 @@
 {% endblock %}
 
 {% if not g.user %}
+<h1>You aren't logged in</h1>
 {% endif %}
 </div>
 

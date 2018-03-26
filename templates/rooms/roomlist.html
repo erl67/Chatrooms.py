@@ -1,11 +1,11 @@
-{% if events == [] %}
-	<h4>No Pending Events</h4>
+{% if rooms == [] %}
+	<h4>No Rooms</h4>
 {% else %}
-	<h3>Scheduled Events </h3>
+	<h3>Rooms</h3>
 
 	<ul class="event-list">
-	{% for i in events %}
-		<li class="event-list-item" title="{{getName(i.client)}}">
+	{% for i in rooms %}
+		<li class="event-list-item" title="{{getName(i.creator)}}">
 			<a class="event-list-link" href="{{url_for('event', eid=i.id)}}">{{ i.eventname | striptags }}</a> 
 			{{ i.date.strftime('%d %B %Y') }} 
 		

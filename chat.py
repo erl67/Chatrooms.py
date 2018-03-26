@@ -56,12 +56,10 @@ def before_request():
     g.chats = None
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
-        if g.user.staff == True:
-            g.events = Event.query.order_by(Event.id.asc()).all()
-        else:
-            g.events = Event.query.filter(Event.client == g.user.id).order_by(Event.date.asc()).all()
+        if g.user != None:
+            g.events = Room.query.order_by(Room.lastmessage.asc()).all()
     eprint("g.user: " + str(g.user))
-    #eprint("g.events: " + str(g.events))
+    eprint("g.rooms: " + str(g.rooms))
     
         
 @app.before_first_request
@@ -120,15 +118,11 @@ def logger():
         if (POST_USER == "owner") and (POST_PASS == "pass"):
             session["uid"] = 1
             flash("Successfully logged in as Mr. Manager")
-            return redirect(url_for("owner"))
+            return redirect(url_for("rooms"))
         elif valid is not None:
             session["uid"] = valid.id
             flash("Successfully logged in!  " + valid.username)
-            if valid.staff == True:
-                return redirect(url_for("staff", uid=valid.id))
-            else:
-                return redirect(url_for("customer", uid=valid.id))
-            return redirect(url_for("index", uid=valid.id))
+            return redirect(url_for("rooms", uid=valid.id))
         else:
             flash("Error logging you in!")
     return Response(render_template("accounts/loginPage.html"), status=200, mimetype='text/html')
@@ -149,12 +143,16 @@ def rawstats():
     msg = ""
     msg += User.Everything()
     msg += "\n\n"
-    msg += Event.Everything()
+    msg += Room.Everything()
     return Response(render_template('test.html', testMessage=msg), status=203, mimetype='text/html')
 
 @app.route('/')
 def index():
     return Response(render_template('base.html'), status=203, mimetype='text/html')
+
+@app.route('/rooms/')
+def rooms():
+    return Response(render_template('/rooms/rooms.html', rooms=g.rooms), status=203, mimetype='text/html')
 
 @app.errorhandler(403)
 @app.errorhandler(404)
