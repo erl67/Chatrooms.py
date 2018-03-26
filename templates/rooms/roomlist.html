@@ -1,21 +1,14 @@
-{% if rooms == [] %}
+{% if g.rooms == [] %}
 	<h4>No Rooms</h4>
 {% else %}
-	<h3>Rooms</h3>
+	<h1>Chat Rooms</h1>
 
-	<ul class="event-list">
-	{% for i in rooms %}
-		<li class="event-list-item" title="{{getName(i.creator)}}">
-			<a class="event-list-link" href="{{url_for('event', eid=i.id)}}">{{ i.eventname | striptags }}</a> 
-			{{ i.date.strftime('%d %B %Y') }} 
-		
-			{% if i.staff1 == None and i.staff2 == None and i.staff3 == None %}
-				<span class="event-empty">No staff</span>
-			{% else %}
-				<span class="event-staff">{{ getName(i.staff1) }} {{ getName(i.staff2) }} {{ getName(i.staff3) }}</span>
-			{% endif %}				
-		
-		</li>
+	<ul class="room-list">
+	{% for i in g.rooms %}
+		<li class="room-list-item" title="{{getName(i.creator)}}">
+			<a class="room-list-link" href="#">{{ i.roomname | striptags }}</a> 
+			{{ i.created.strftime('%d %B %Y') }}
+			</li>
 	{% endfor %}
 	</ul>
 {% endif %}

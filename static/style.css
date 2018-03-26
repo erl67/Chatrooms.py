@@ -80,6 +80,7 @@ header {
 	justify-content: space-evenly;
 	font-size: smaller;
 	padding: 1.5em;
+	border: 1px dashed grey;
 }
 input:valid {
 	background-color: rgba(157, 223, 154, 0.9);

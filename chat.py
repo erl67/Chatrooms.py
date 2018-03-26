@@ -2,7 +2,7 @@
 REBUILD_DB = True
 FDEBUG = True
 
-import os, re
+import os, re, json
 from sys import stderr
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from random import getrandbits
 from models import db, User, Room, populateDB
+
+chat = []
 
 def create_app():
     app = Flask(__name__)
@@ -57,7 +59,7 @@ def before_request():
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user != None:
-            g.events = Room.query.order_by(Room.lastmessage.asc()).all()
+            g.rooms = Room.query.order_by(Room.lastmessage.asc()).all()
     eprint("g.user: " + str(g.user))
     eprint("g.rooms: " + str(g.rooms))
     
@@ -153,6 +155,23 @@ def index():
 @app.route('/rooms/')
 def rooms():
     return Response(render_template('/rooms/rooms.html', rooms=g.rooms), status=203, mimetype='text/html')
+
+@app.route('/join/<int:rid>')
+def joinroom():
+    return Response(render_template('/rooms/rooms.html', rooms=g.rooms), status=203, mimetype='text/html')
+
+@app.route('/chat')
+def get_chat():
+    return json.dumps(text)
+
+@app.route("/new_msg", methods=["POST"])
+def add():
+    chat.append([request.json["message"]])
+    return "OK!"
+
+@app.route("/chatter")
+def get_items():
+    return json.dumps(chat)
 
 @app.errorhandler(403)
 @app.errorhandler(404)

@@ -43,12 +43,12 @@ class Room(db.Model):
 
     def __init__(self, roomname, creator, created, lastmessage):
         self.roomname = roomname
-        self.creator = 1 if creator == None else client 
+        self.creator = 1 if creator == None else creator 
         self.created = datetime.utcnow() if created == None else created 
         self.lastmessage = datetime.utcnow() if created == None else created 
 
     def __repr__(self):
-        return "<Room {}>".format(repr(self.eventname))
+        return "<Room {}>".format(repr(self.roomname))
     
     def Everything():
         txt = "\t" + str(Room.__table__) + "\n"
@@ -62,7 +62,9 @@ class Room(db.Model):
 
 def populateDB():
     db.session.add(User(username="owner", password="pass", email="N@A", currentroom=None))
+    db.session.add(User(username="FirstUser", password="pass", email="N@A", currentroom=None))
     db.session.add(Room(roomname="Welcome Room", creator=None, created=datetime.utcnow(), lastmessage=datetime.utcnow()))
+    db.session.add(Room(roomname="Room 1", creator=2, created=datetime(2017, 10, 31, 20, 0), lastmessage=None))
     db.session.commit()
     print('DB Populated...') 
     return True
