@@ -41,11 +41,11 @@ class Room(db.Model):
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     lastmessage = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, roomname, creator, created, lastmessage):
+    def __init__(self, roomname, creator=None, created=None, lastmessage=None):
         self.roomname = roomname
         self.creator = 1 if creator == None else creator 
         self.created = datetime.utcnow() if created == None else created 
-        self.lastmessage = datetime.utcnow() if created == None else created 
+        self.lastmessage = datetime.utcnow() if lastmessage == None else created 
 
     def __repr__(self):
         return "<Room {}>".format(repr(self.roomname))
@@ -59,12 +59,40 @@ class Room(db.Model):
             txt += ' '.join([str(getattr(item, col)) for col in cols]) +  "\n"
         return txt
  
+class Chat(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    room = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=False)
+    creator = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    message = db.Column(db.String(200), unique=False, nullable=False)
+
+
+    def __init__(self, room, creator=None, created=None, message=None):
+        self.room = room
+        self.creator = 0 if creator == None else creator 
+        self.created = datetime.utcnow() if created == None else created 
+        self.message = "😶" if message == None else message
+
+    def __repr__(self):
+        return "<Chat {} {} {}>".format(repr(self.message), repr(self.room), repr(self.creator))
+    
+    def Everything():
+        txt = "\t" + str(Room.__table__) + "\n"
+        cols = Chat.__table__.columns.keys()
+        txt += (str(cols) + "\n")
+        resultSet = Chat.query.order_by(Chat.id.asc()).all()
+        for item in resultSet:
+            txt += ' '.join([str(getattr(item, col)) for col in cols]) +  "\n"
+        return txt
 
 def populateDB():
     db.session.add(User(username="owner", password="pass", email="N@A", currentroom=None))
     db.session.add(User(username="FirstUser", password="pass", email="N@A", currentroom=None))
     db.session.add(Room(roomname="Welcome Room", creator=None, created=datetime.utcnow(), lastmessage=datetime.utcnow()))
     db.session.add(Room(roomname="Room 1", creator=2, created=datetime(2017, 10, 31, 20, 0), lastmessage=None))
+    db.session.add(Chat(room=1, creator=1, created=None, message="Test Message"))
+    db.session.add(Chat(room=1, creator=2, created=None, message="First Message"))
+
     db.session.commit()
     print('DB Populated...') 
     return True

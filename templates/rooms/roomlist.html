@@ -6,9 +6,14 @@
 	<ul class="room-list">
 	{% for i in g.rooms %}
 		<li class="room-list-item" title="{{getName(i.creator)}}">
-			<a class="room-list-link" href="#">{{ i.roomname | striptags }}</a> 
+			<a href="{{ url_for('joinroom', rid=i.id) }}">
+			{{ i.roomname | striptags }}
+			</a> 
 			{{ i.created.strftime('%d %B %Y') }}
 			</li>
 	{% endfor %}
 	</ul>
+	
+	
+	<h4><a href="{{ url_for('newroom') }}">Create New Room</a></h4>
 {% endif %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{% endblock %}
+{% block head %}{% endblock %}
+
+{% block body %}
+	{% if not g.user %}
+			<h1>You aren't logged in</h1>
+		{% else %}
+			{% include 'rooms/roomlist.html' %}
+	{% endif %}
+{% endblock %}
+
+{% block script %}
+{% endblock %}

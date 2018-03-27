@@ -1,20 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %Create New Room - {{ super() }}{% endblock %}
+{% block title %} Create New Room - {{ super() }}{% endblock %}
 
 {% block body %}
 		<form action="" method="post">
-			Event name:  <input type="text" name="ename" minlength="5" maxlength="75" required/>
-			<br />
-			Client:      
-			{% if g.user.id==1 %}
-				<input type="text" name="eclient" placeholder="{{ g.user.username }}" disabled title="Request not used. Owner will be client"/>
-		    {% else %}
-				<input type="text" name="eclient" placeholder="{{ g.user.username }}" title="request not used" disabled/>
-    		{% endif %}
-			<br />
-			Date:  <input type="date" name="edate" min="{{now}}" max="{{later}}" required/>
-			<br />
+			Room name: <input type="text" name="room" minlength="5" maxlength="75" required/>
+			Creator: <input type="text" name="creator" placeholder="{{ g.user.username }}" title="request not used" disabled/>
+			<textarea name="msg" rows="4" cols="50" minlength="1" maxlength="200" placeholder="Message" required/></textarea>
 			<input type="submit" value="submit" />
 		</form>
 {% endblock %}

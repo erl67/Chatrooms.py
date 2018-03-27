@@ -10,7 +10,7 @@ from sqlalchemy import or_
 from datetime import datetime, timedelta
 from dateutil import parser
 from random import getrandbits
-from models import db, User, Room, populateDB
+from models import db, populateDB, User, Room, Chat
 
 chat = []
 
@@ -60,8 +60,10 @@ def before_request():
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user != None:
             g.rooms = Room.query.order_by(Room.lastmessage.asc()).all()
+            g.chats = Chat.query.all()
     eprint("g.user: " + str(g.user))
     eprint("g.rooms: " + str(g.rooms))
+    eprint("g.chats: " + str(g.chats))
     
         
 @app.before_first_request
@@ -109,7 +111,7 @@ def signer():
 
 @app.route("/login/", methods=["GET", "POST"])
 def logger():
-    if "username" in session:
+    if "uid" in session:
         flash("Already logged in!")
         return redirect(url_for("index"))
     elif request.method == "POST":
@@ -146,19 +148,66 @@ def rawstats():
     msg += User.Everything()
     msg += "\n\n"
     msg += Room.Everything()
+    msg += "\n\n"
+    msg += Chat.Everything()
     return Response(render_template('test.html', testMessage=msg), status=203, mimetype='text/html')
 
 @app.route('/')
 def index():
-    return Response(render_template('base.html'), status=203, mimetype='text/html')
+    return Response(render_template('index.html'), status=203, mimetype='text/html')
 
 @app.route('/rooms/')
 def rooms():
-    return Response(render_template('/rooms/rooms.html', rooms=g.rooms), status=203, mimetype='text/html')
+    if g.user.currentroom == 0:
+        return redirect(url_for("index"))
+    else: 
+        return redirect(url_for("joinroom", rid=g.user.currentroom))
+    abort(404)
 
-@app.route('/join/<int:rid>')
-def joinroom():
-    return Response(render_template('/rooms/rooms.html', rooms=g.rooms), status=203, mimetype='text/html')
+@app.route('/room/<int:rid>')
+def joinroom(rid=None):
+    if (not g.user or not rid):
+        abort(404)
+    else:
+        room = Room.query.filter(Room.id == rid).first()
+        chats = Chat.query.filter(Chat.room == room.id).order_by(Chat.created.asc()).all()
+        #check last room if not same as rid then update
+#         try:
+#             db.session.commit()
+#             flash("Joined " + room.roomname)
+#         except Exception as e:
+#             db.session.rollback()
+#             eprint(str(e))
+#             flash("Error joining room")
+#             return redirect(url_for("index"))
+        return Response(render_template('/rooms/room.html', room=room, chats=chats), status=203, mimetype='text/html')
+
+
+@app.route('/newroom/', methods=["GET", "POST"])
+def newroom():
+    if not g.user:
+        abort(404)
+    elif request.method == "POST":
+        POST_ROOM = remove_tags(str(request.form['room']))
+        POST_CHAT = remove_tags(str(request.form['msg']))
+        if POST_CHAT != None:
+            newRoom = Room(POST_ROOM, g.user.id, None, None)
+            newChat = User(g.user.currentroom, g.user.id, None, POST_CHAT)
+            db.session.add(newRoom)
+            db.session.add(newChat)
+            try:
+                db.session.commit()
+                if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
+                    flash("Successfully registered! " + POST_USER + ":" + POST_PASS)
+                    session["uid"] = User.query.filter(User.username == POST_USER).first().id
+                    return redirect(url_for("index"))
+            except Exception as e:
+                db.session.rollback()
+                eprint(str(e))
+                flash("Error adding to database")
+        else:
+            flash("Error registering new account")
+    return Response(render_template('/rooms/newRoom.html'), status=203, mimetype='text/html')
 
 @app.route('/chat')
 def get_chat():

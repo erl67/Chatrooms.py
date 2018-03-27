@@ -1,7 +1,7 @@
 html, body {
 	margin: 0 auto;
 	padding: 1em;
-	width: 90%;
+	width: 95%;
 	margin: 0 auto;
 	box-sizing: border-box;
 	display: flex; 
@@ -10,7 +10,9 @@ html, body {
 	align-items: center;
     font-weight: bold;
 }
-#page {
+#page-main {
+	min-width: 50vw;
+	min-height: 50vh;
 }
 h1, h2, h3, h4, h5, h6{
 	text-align: center;
@@ -31,7 +33,6 @@ a:hover {
 }
 .room-list {
 	border: 1px dashed #c0c0c0;
-	width: 100%;
 }
 .event-list-link {
 	margin-right: 2em;
@@ -40,25 +41,22 @@ a:hover {
 .event-list-item {
 	padding: .5em;
 	list-style-type: square;
-/* 	width: 100%; */
 }
 ul {
 	display: flex; 
 	flex-direction: column;
-	justify-content: space-evenly;
+	justify-content: space-between;
 }
 li {
 	display: flex; 
 	flex-direction: row;
 	justify-content: space-between;
-/* 	list-style-type: none; */
 }
 .room-empty {
 	border: 2px dashed red;
 	padding: .1em;
 	font-variant: small-caps;
 	cursor: help;
-/* 	margin-left: 3em; */
 }
 
 .flashes {
@@ -104,6 +102,8 @@ input:focus {
 }
 form {
 	text-align: center;
+	display: grid;
+	margin: 2em;
 }
 select {
 	padding: 1em;
