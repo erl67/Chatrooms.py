@@ -7,7 +7,7 @@ from sys import stderr
 from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from dateutil import parser
 from random import getrandbits
 from models import db, populateDB, User, Room, Chat
@@ -57,6 +57,7 @@ def before_request():
     g.rooms = None
     g.chats = None
     g.jchats = None
+    g.j = None
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user != None:
@@ -65,15 +66,14 @@ def before_request():
                 g.chats = Chat.query.filter(Chat.room == g.user.currentroom).order_by(Chat.created.asc()).all()
             else:
                 g.chats = Chat.query.limit(10).all()
-#         g.jchats = {col: c for (col, c) in g.chats}
-        g.jchats = Chat.as_dict()
         g.jchats = Chat.as_json()
-#         g.jchats = json.loads(g.jchats)
+#         g.jchats = Chat.as_json().query.filter(Chat.room == g.user.currentroom)
     eprint("g.user: " + str(g.user))
     eprint("g.rooms: " + str(g.rooms))
     eprint("g.chats: " + str(g.chats))
     eprint("g.jchats: " + str(g.jchats))
-#     eprint("JSON.loads: " + json.loads(g.jchats.__str__()))
+#     g.j = json.dumps(str(g.jchats))
+#     eprint("JSON.loads: " + str(g.j))
 #     for c in Chat.query.all():
 #         eprint (c.__dict__)
     
@@ -213,8 +213,6 @@ def exitroom():
             flash("Error leaving room")
     return redirect(url_for("index"))
 
-
-
 @app.route('/newroom/', methods=["GET", "POST"])
 def newroom():
     if not g.user:
@@ -248,16 +246,17 @@ def newroom():
 
 @app.route('/chat')
 def get_chat():
-    return json.dumps(g.jchats)
+    return json.dumps(g.jchats, default=json_serial)
 
 @app.route("/new_msg", methods=["POST"])
 def add():
     chat.append([request.json["message"]])
     return "OK!"
 
-@app.route("/chatter")
+@app.route("/chats")
 def get_items():
-    return json.dumps(g.rooms)
+    return str(len(g.jchats))
+#     return json.dumps(g.rooms)
 
 @app.errorhandler(403)
 @app.errorhandler(404)
@@ -285,6 +284,12 @@ def eprint(*args, **kwargs):
 TAG_RE = re.compile(r'<[^>]+>')
 def remove_tags(text):
     return TAG_RE.sub('', text)
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code stackoverflow.com/a/22238613/7491839 """
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
     
 if __name__ == "__main__":
     print('Starting......')
