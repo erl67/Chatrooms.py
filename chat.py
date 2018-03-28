@@ -1,5 +1,5 @@
 #erl67
-REBUILD_DB = True
+REBUILD_DB = False
 FDEBUG = True
 
 import os, re, json
@@ -60,7 +60,10 @@ def before_request():
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user != None:
             g.rooms = Room.query.order_by(Room.lastmessage.asc()).all()
-            g.chats = Chat.query.all()
+            if g.user.currentroom > 0:
+                g.chats = Chat.query.filter(Chat.room == g.user.currentroom).order_by(Chat.created.asc()).all()
+            else:
+                g.chats = Chat.query.all()
     eprint("g.user: " + str(g.user))
     eprint("g.rooms: " + str(g.rooms))
     eprint("g.chats: " + str(g.chats))
@@ -168,19 +171,39 @@ def rooms():
 def joinroom(rid=None):
     if (not g.user or not rid):
         abort(404)
-    else:
+    elif (g.user.currentroom == rid):
+        eprint(g.user.currentroom)
         room = Room.query.filter(Room.id == rid).first()
         chats = Chat.query.filter(Chat.room == room.id).order_by(Chat.created.asc()).all()
-        #check last room if not same as rid then update
-#         try:
-#             db.session.commit()
-#             flash("Joined " + room.roomname)
-#         except Exception as e:
-#             db.session.rollback()
-#             eprint(str(e))
-#             flash("Error joining room")
-#             return redirect(url_for("index"))
         return Response(render_template('/rooms/room.html', room=room, chats=chats), status=203, mimetype='text/html')
+    else:
+        room = Room.query.filter(Room.id == rid).first()
+        if room == None:
+            abort(404)
+        else:
+            chats = Chat.query.filter(Chat.room == room.id).order_by(Chat.created.asc()).all()
+            user = User.query.filter(User.id == g.user.id).first()
+            user.currentroom = room.id
+            db.session.commit()
+#             return redirect(url_for("joinroom", rid=rid))
+            return Response(render_template('/rooms/room.html', room=room, chats=chats), status=203, mimetype='text/html')
+#     return redirect(url_for("index"))
+
+@app.route('/leaveroom/')
+def exitroom():
+    if not g.user:
+        abort(404)
+    else:
+        user = User.query.filter(User.id == g.user.id).first()
+        user.currentroom = 0
+        try:
+            db.session.commit()
+            flash("Left room")
+        except Exception as e:
+            eprint (str(e))
+            flash("Error leaving room")
+    return redirect(url_for("index"))
+
 
 
 @app.route('/newroom/', methods=["GET", "POST"])
@@ -192,21 +215,26 @@ def newroom():
         POST_CHAT = remove_tags(str(request.form['msg']))
         if POST_CHAT != None:
             newRoom = Room(POST_ROOM, g.user.id, None, None)
-            newChat = User(g.user.currentroom, g.user.id, None, POST_CHAT)
+            eprint("newRoom: " + str(newRoom))
             db.session.add(newRoom)
-            db.session.add(newChat)
             try:
                 db.session.commit()
-                if User.query.filter(User.username == POST_USER, User.password == POST_PASS):
-                    flash("Successfully registered! " + POST_USER + ":" + POST_PASS)
-                    session["uid"] = User.query.filter(User.username == POST_USER).first().id
+                newChat = Chat(newRoom.id, g.user.id, None, POST_CHAT)
+                eprint("newChat: " + str(newChat))
+                db.session.add(newChat)
+                try:
+                    db.session.commit()
+                    flash ("Created room: " + str(newRoom.roomname))
                     return redirect(url_for("index"))
+                except Exception as e:
+                    db.session.rollback()
+                    eprint(str(e))
+                    flash("Error adding message to new room")
+                    return redirect(url_for("newroom"))
             except Exception as e:
-                db.session.rollback()
-                eprint(str(e))
-                flash("Error adding to database")
+                flash("Room creation failed")
         else:
-            flash("Error registering new account")
+            flash("Must enter initial message")
     return Response(render_template('/rooms/newRoom.html'), status=203, mimetype='text/html')
 
 @app.route('/chat')

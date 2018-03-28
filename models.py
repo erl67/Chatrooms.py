@@ -48,7 +48,7 @@ class Room(db.Model):
         self.lastmessage = datetime.utcnow() if lastmessage == None else created 
 
     def __repr__(self):
-        return "<Room {}>".format(repr(self.roomname))
+        return "<Room {} {}>".format(repr(self.id), repr(self.roomname))
     
     def Everything():
         txt = "\t" + str(Room.__table__) + "\n"
@@ -74,7 +74,7 @@ class Chat(db.Model):
         self.message = "😶" if message == None else message
 
     def __repr__(self):
-        return "<Chat {} {} {}>".format(repr(self.message), repr(self.room), repr(self.creator))
+        return "<Chat {} {} {}>".format(repr(self.id), repr(self.room), repr(self.message))
     
     def Everything():
         txt = "\t" + str(Room.__table__) + "\n"

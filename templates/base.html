@@ -32,6 +32,9 @@
     	<a href="{{ url_for('rawstats')}}" style="font-size:60%">raw data</a><br/><br/>
     {% endif %}
     <a href="{{ url_for('index') }}">room list</a><br/><br/>
+    {% if g.user.currentroom != 0 %}
+        <a href="{{ url_for('exitroom') }}">leave room {{g.user.currentroom}}</a><br/><br/>
+    {% endif %}
     <a href="{{ url_for('unlogger') }}">sign out</a>
   {% else %}
   	<h2>Login or Register for access</h2>

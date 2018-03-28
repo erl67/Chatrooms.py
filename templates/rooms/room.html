@@ -7,7 +7,6 @@
 	{% if room == [] %}
 		<h4>Room Not Found. This shouldn't happen</h4>
 	{% else %}	
-		{{ room.id }}
 			{% for m in chats %}
 				<li>{{ m }}</li>
 			{% endfor %}
