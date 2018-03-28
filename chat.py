@@ -56,6 +56,7 @@ def before_request():
     g.user = None
     g.rooms = None
     g.chats = None
+    g.jchats = None
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user != None:
@@ -63,10 +64,18 @@ def before_request():
             if g.user.currentroom > 0:
                 g.chats = Chat.query.filter(Chat.room == g.user.currentroom).order_by(Chat.created.asc()).all()
             else:
-                g.chats = Chat.query.all()
+                g.chats = Chat.query.limit(10).all()
+#         g.jchats = {col: c for (col, c) in g.chats}
+        g.jchats = Chat.as_dict()
+        g.jchats = Chat.as_json()
+#         g.jchats = json.loads(g.jchats)
     eprint("g.user: " + str(g.user))
     eprint("g.rooms: " + str(g.rooms))
     eprint("g.chats: " + str(g.chats))
+    eprint("g.jchats: " + str(g.jchats))
+#     eprint("JSON.loads: " + json.loads(g.jchats.__str__()))
+#     for c in Chat.query.all():
+#         eprint (c.__dict__)
     
         
 @app.before_first_request
@@ -185,9 +194,8 @@ def joinroom(rid=None):
             user = User.query.filter(User.id == g.user.id).first()
             user.currentroom = room.id
             db.session.commit()
-#             return redirect(url_for("joinroom", rid=rid))
             return Response(render_template('/rooms/room.html', room=room, chats=chats), status=203, mimetype='text/html')
-#     return redirect(url_for("index"))
+    return redirect(url_for("index"))
 
 @app.route('/leaveroom/')
 def exitroom():
@@ -200,6 +208,7 @@ def exitroom():
             db.session.commit()
             flash("Left room")
         except Exception as e:
+            db.session.rollback()
             eprint (str(e))
             flash("Error leaving room")
     return redirect(url_for("index"))
@@ -239,7 +248,7 @@ def newroom():
 
 @app.route('/chat')
 def get_chat():
-    return json.dumps(text)
+    return json.dumps(g.jchats)
 
 @app.route("/new_msg", methods=["POST"])
 def add():
@@ -248,7 +257,7 @@ def add():
 
 @app.route("/chatter")
 def get_items():
-    return json.dumps(chat)
+    return json.dumps(g.rooms)
 
 @app.errorhandler(403)
 @app.errorhandler(404)

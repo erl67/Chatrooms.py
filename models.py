@@ -76,8 +76,24 @@ class Chat(db.Model):
     def __repr__(self):
         return "<Chat {} {} {}>".format(repr(self.id), repr(self.room), repr(self.message))
     
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+    def r2d():
+        return {c.name: getattr(c.value, c.name) for c in Chat.__table__.columns}
+    
+#     def as_json(self):
+    def as_json():
+#         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        json = []
+        cols = Chat.__table__.columns.keys()
+        resultSet = Chat.query.order_by(Chat.id.asc()).all()
+        for item in resultSet:
+            json += [str(getattr(item, col)) for col in cols]
+        return json
+    
     def Everything():
-        txt = "\t" + str(Room.__table__) + "\n"
+        txt = "\t" + str(Chat.__table__) + "\n"
         cols = Chat.__table__.columns.keys()
         txt += (str(cols) + "\n")
         resultSet = Chat.query.order_by(Chat.id.asc()).all()
