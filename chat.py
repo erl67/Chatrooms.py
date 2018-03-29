@@ -92,6 +92,16 @@ def utility_processor():
             return ""
     return dict(getName=getName)
 
+@app.context_processor
+def utility_processor():
+    def getRoom(id):
+        room = Room.query.filter(Room.id==id).first()
+        if room != None:
+            return room.roomname
+        else:
+            return ""
+    return dict(getRoom=getRoom)
+
 
 @app.route("/register/", methods=["GET", "POST"])
 def signer():
@@ -232,7 +242,7 @@ def newroom():
                 try:
                     db.session.commit()
                     flash ("Created room: " + str(newRoom.roomname))
-                    return redirect(url_for("index"))
+                    return redirect(url_for("joinroom", rid=newRoom.id))
                 except Exception as e:
                     db.session.rollback()
                     eprint(str(e))

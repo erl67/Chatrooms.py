@@ -21,6 +21,14 @@ div {
 	padding: 1em;
 	margin: .5em;
 }
+header > a{
+	margin-top: .5em;
+	margin-bottom: 1em;
+}
+header > a:first-of-type{
+	font-size:smaller;
+	margin-bottom: 1.5em;
+}
 a {
 	color: inherit;
 	text-decoration: underline;
