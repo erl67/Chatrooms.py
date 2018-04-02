@@ -1,11 +1,11 @@
 var timeoutID;
 var timeout = 15000;
 var room = 0;
+var chats = 0;
 var button;
 var textarea;
 
 document.addEventListener("DOMContentLoaded", function() {
-//	window.onload = function() {
 	var httpRequest = new XMLHttpRequest();
 	httpRequest.onreadystatechange = function() { 
 		handleRoom(httpRequest)
@@ -17,16 +17,17 @@ document.addEventListener("DOMContentLoaded", function() {
 		if (httpRequest.readyState === XMLHttpRequest.DONE) {
 			if (httpRequest.status === 200) {
 				room = httpRequest.responseText;
-				alert("Room located" + room);
+				//alert("Room located" + room);
 			}
 		}
 	}
 
+
+	button = document.getElementsByTagName("button")[0];
+	button.addEventListener("click", sendMsg, true);
+	textarea = document.getElementsByTagName("textarea")[0];
+
 	timeoutID = window.setTimeout(poller, timeout);
-	//document.getElementById("submitBtn").addEventListener("click", sendMsg, true);
-
-	document.getElementsByTagName("button")[0].addEventListener("click", sendMsg, true);
-
 });
 
 function sendMsg() {
@@ -45,7 +46,7 @@ function sendMsg() {
 	httpRequest.setRequestHeader('Content-Type', 'application/json');
 
    var data = new Object();
-   data.msg = document.getElementsByTagName("textarea")[0].value;
+   data.msg = textarea.value;
    data = JSON.stringify(data);
 
    httpRequest.send(data);
@@ -55,7 +56,8 @@ function handleSendMsg(httpRequest, msg) {
 	if (httpRequest.readyState === XMLHttpRequest.DONE) {
 		if (httpRequest.status === 204) {
 			alert(msg);
-			 document.getElementsByTagName("textarea")[0].value = "";
+			 textarea.value = "";
+			 //add something here to call function that gets new messages
 		} else {
 			alert("There was a problem with the post request.");
 		}

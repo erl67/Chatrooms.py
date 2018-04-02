@@ -273,11 +273,11 @@ def add():
     db.session.add(newChat)
     try:
         db.session.commit()
-        flash ("Message sent")
+        flash ("Message received")
         return ('', 204)
     except Exception as e:
         db.session.rollback()
-        flash("Error sending message")
+        flash("Error receiving message")
         return ('', 510)
 
 @app.route("/chats")
