@@ -1,10 +1,65 @@
 var timeoutID;
-var timeout = 45000;
+var timeout = 15000;
+var room = 0;
+var button;
+var textarea;
 
-function setup() {
-	document.getElementById("theButton").addEventListener("click", makePost, true);
+document.addEventListener("DOMContentLoaded", function() {
+//	window.onload = function() {
+	var httpRequest = new XMLHttpRequest();
+	httpRequest.onreadystatechange = function() { 
+		handleRoom(httpRequest)
+	};
+
+	httpRequest.open("GET", "/r");
+	httpRequest.send();
+	function handleRoom(httpRequest) {
+		if (httpRequest.readyState === XMLHttpRequest.DONE) {
+			if (httpRequest.status === 200) {
+				room = httpRequest.responseText;
+				alert("Room located" + room);
+			}
+		}
+	}
 
 	timeoutID = window.setTimeout(poller, timeout);
+	//document.getElementById("submitBtn").addEventListener("click", sendMsg, true);
+
+	document.getElementsByTagName("button")[0].addEventListener("click", sendMsg, true);
+
+});
+
+function sendMsg() {
+	var httpRequest = new XMLHttpRequest();
+
+	if (!httpRequest) {
+		alert('Giving up :( Cannot create an XMLHTTP instance');
+		return false;
+	}
+	
+	var msg = document.getElementsByTagName("textarea")[0].value;
+
+	httpRequest.onreadystatechange = function() { handleSendMsg(httpRequest, msg) };
+
+	httpRequest.open("POST", "/new_msg");
+	httpRequest.setRequestHeader('Content-Type', 'application/json');
+
+   var data = new Object();
+   data.msg = document.getElementsByTagName("textarea")[0].value;
+   data = JSON.stringify(data);
+
+   httpRequest.send(data);
+}
+
+function handleSendMsg(httpRequest, msg) {
+	if (httpRequest.readyState === XMLHttpRequest.DONE) {
+		if (httpRequest.status === 204) {
+			alert(msg);
+			 document.getElementsByTagName("textarea")[0].value = "";
+		} else {
+			alert("There was a problem with the post request.");
+		}
+	}
 }
 
 function makePost() {
@@ -15,28 +70,21 @@ function makePost() {
 		return false;
 	}
 
-	var one = document.getElementById("a").value
-	var two = document.getElementById("b").value
-	var three = document.getElementById("c").value
-	var row = [one, two, three]
-	httpRequest.onreadystatechange = function() { handlePost(httpRequest, row) };
-	
-	httpRequest.open("POST", "/new_item");
-	httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	httpRequest.onreadystatechange = function() { handlePost(httpRequest) };
 
-	var data;
-	data = "one=" + one + "&two=" + two + "&three=" + three;
-	
-	httpRequest.send(data);
+	httpRequest.open("POST", "/chat");
+	httpRequest.setRequestHeader('Content-Type', 'application/json');
+
+	httpRequest.send();
 }
 
-function handlePost(httpRequest, row) {
+function handlePost(httpRequest) {
 	if (httpRequest.readyState === XMLHttpRequest.DONE) {
 		if (httpRequest.status === 200) {
-			addRow(row);
-			clearInput();
+			room = httpRequest.responseText;
+			alert("Room located" + room);
 		} else {
-			alert("There was a problem with the post request.");
+			alert("There was a problem with the room request.");
 		}
 	}
 }
@@ -49,48 +97,26 @@ function poller() {
 		return false;
 	}
 
-	httpRequest.onreadystatechange = function() { handlePoll(httpRequest) };
-	httpRequest.open("GET", "/items");
+	httpRequest.onreadystatechange = function() { 
+		handlePoll(httpRequest)
+	};
+
+	httpRequest.open("GET", "/r");
 	httpRequest.send();
 }
 
 function handlePoll(httpRequest) {
 	if (httpRequest.readyState === XMLHttpRequest.DONE) {
 		if (httpRequest.status === 200) {
-			var tab = document.getElementById("theTable");
-			while (tab.rows.length > 0) {
-				tab.deleteRow(0);
-			}
-			
-			var rows = JSON.parse(httpRequest.responseText);
-			for (var i = 0; i < rows.length; i++) {
-				addRow(rows[i]);
-			}
-			
-			timeoutID = window.setTimeout(poller, timeout);
-			
-		} else {
-			alert("There was a problem with the poll request.  you'll need to refresh the page to recieve updates again!");
+			room = httpRequest.responseText;
+//			alert("Room located" + room);
 		}
+//		} else {
+//		alert("There was a problem with the room request.");
+//		}
+//		} else {
+//		alert("There was a problem with the poll request.");
 	}
 }
 
-function clearInput() {
-	document.getElementById("a").value = "";
-	document.getElementById("b").value = "";
-	document.getElementById("c").value = "";
-}
 
-function addRow(row) {
-	var tableRef = document.getElementById("theTable");
-	var newRow   = tableRef.insertRow();
-
-	var newCell, newText;
-	for (var i = 0; i < row.length; i++) {
-		newCell  = newRow.insertCell();
-		newText  = document.createTextNode(row[i]);
-		newCell.appendChild(newText);
-	}
-}
-
-window.addEventListener("load", setup, true);

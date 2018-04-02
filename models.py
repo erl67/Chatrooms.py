@@ -74,11 +74,14 @@ class Chat(db.Model):
 
     def __repr__(self):
         return "<Chat {} {} {}>".format(repr(self.id), repr(self.room), repr(self.message))
-        
-    def as_json():
+           
+    def as_json(room=None):
         json = dict()
         cols = Chat.__table__.columns.keys()
-        resultSet = Chat.query.order_by(Chat.id.asc()).all()
+        if room == None:
+            resultSet = Chat.query.order_by(Chat.id.asc()).all()
+        else:
+            resultSet = Chat.query.filter(Chat.room == int(room)).order_by(Chat.id.asc()).all()
         for item in resultSet:
             json[item.id] = {col : getattr(item, col) for col in cols}
         return json

@@ -11,10 +11,13 @@
 				<li>{{ m }}</li>
 			{% endfor %}
 		
-		<form action="" method="post">
+{#		<form action="" method="post">#}
+{#		<form name="msgForm"> #}
+		
 			<textarea name="msg" rows="4" cols="50" minlength="1" maxlength="200" placeholder="Message" required/></textarea>
-			<input type="submit" value="New message" />
-		</form>
+			<br/>
+			<button name="submitBtn" type="button">Submit Message</button>
+{#		</form>#}
 	{% endif %}
 
 {% endblock %}

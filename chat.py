@@ -12,8 +12,6 @@ from dateutil import parser
 from random import getrandbits
 from models import db, populateDB, User, Room, Chat
 
-chat = []
-
 def create_app():
     app = Flask(__name__)
     DB_NAME = os.path.join(app.root_path, 'chat.db')
@@ -57,25 +55,22 @@ def before_request():
     g.rooms = None
     g.chats = None
     g.jchats = None
-    g.j = None
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user != None:
             g.rooms = Room.query.order_by(Room.lastmessage.asc()).all()
             if g.user.currentroom > 0:
                 g.chats = Chat.query.filter(Chat.room == g.user.currentroom).order_by(Chat.created.asc()).all()
+                g.jchats = Chat.as_json(g.user.currentroom)
             else:
                 g.chats = Chat.query.limit(10).all()
-        g.jchats = Chat.as_json()
+                g.jchats = Chat.as_json()
+#         g.jchats = Chat.as_json()
 #         g.jchats = Chat.as_json().query.filter(Chat.room == g.user.currentroom)
-    eprint("g.user: " + str(g.user))
-    eprint("g.rooms: " + str(g.rooms))
-    eprint("g.chats: " + str(g.chats))
+#     eprint("g.user: " + str(g.user))
+#     eprint("g.rooms: " + str(g.rooms))
+#     eprint("g.chats: " + str(g.chats))
     eprint("g.jchats: " + str(g.jchats))
-#     g.j = json.dumps(str(g.jchats))
-#     eprint("JSON.loads: " + str(g.j))
-#     for c in Chat.query.all():
-#         eprint (c.__dict__)
     
         
 @app.before_first_request
@@ -254,19 +249,40 @@ def newroom():
             flash("Must enter initial message")
     return Response(render_template('/rooms/newRoom.html'), status=203, mimetype='text/html')
 
+@app.route('/r')
+def get_room():
+    if g.user:
+        return json.dumps(g.user.currentroom, default=json_serial)
+    else:
+        abort(404)
+
+@app.route('/jchat')
+def get_jchat():
+    return json.dumps(g.jchats, default=json_serial)
+
 @app.route('/chat')
 def get_chat():
     return json.dumps(g.jchats, default=json_serial)
 
 @app.route("/new_msg", methods=["POST"])
 def add():
-    chat.append([request.json["message"]])
-    return "OK!"
+    eprint(str(request.json))
+    message = request.json["msg"]
+    message = remove_tags(message)
+    newChat = Chat(g.user.currentroom, g.user.id, None, message)
+    db.session.add(newChat)
+    try:
+        db.session.commit()
+        flash ("Message sent")
+        return ('', 204)
+    except Exception as e:
+        db.session.rollback()
+        flash("Error sending message")
+        return ('', 510)
 
 @app.route("/chats")
 def get_items():
     return str(len(g.jchats))
-#     return json.dumps(g.rooms)
 
 @app.errorhandler(403)
 @app.errorhandler(404)
