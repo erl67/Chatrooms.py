@@ -4,11 +4,6 @@ from random import randrange
 
 db = SQLAlchemy()
 
-staffers = db.Table('staffers',
-    db.Column('room_id', db.Integer, db.ForeignKey('room.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
-)
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)

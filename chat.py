@@ -4,7 +4,7 @@ FDEBUG = True
 
 import os, re, json
 from sys import stderr
-from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response
+from flask import Flask, g, send_from_directory, flash, render_template, abort, request, redirect, url_for, session, Response, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_
 from datetime import datetime, date, timedelta
@@ -55,6 +55,7 @@ def before_request():
     g.rooms = None
     g.chats = None
     g.jchats = None
+    g.others = None
     if 'uid' in session:
         g.user = User.query.filter_by(id=session['uid']).first()
         if g.user != None:
@@ -62,6 +63,7 @@ def before_request():
             if g.user.currentroom > 0:
                 g.chats = Chat.query.filter(Chat.room == g.user.currentroom).order_by(Chat.created.asc()).all()
                 g.jchats = Chat.as_json(g.user.currentroom)
+                g.others = [u.username for u in User.query.filter(User.currentroom == g.user.currentroom).all()]
             else:
                 g.chats = Chat.query.limit(10).all()
                 g.jchats = Chat.as_json()
@@ -71,6 +73,7 @@ def before_request():
 #     eprint("g.rooms: " + str(g.rooms))
 #     eprint("g.chats: " + str(g.chats))
     eprint("g.jchats: " + str(g.jchats))
+    eprint("g.others: " + str(g.others))
     
         
 @app.before_first_request
@@ -189,7 +192,7 @@ def joinroom(rid=None):
         eprint(g.user.currentroom)
         room = Room.query.filter(Room.id == rid).first()
         chats = Chat.query.filter(Chat.room == room.id).order_by(Chat.created.asc()).all()
-        return Response(render_template('/rooms/room.html', room=room, chats=chats), status=203, mimetype='text/html')
+        return Response(render_template('/rooms/room.html', room=room, chats=chats, others=g.others), status=203, mimetype='text/html')
     else:
         room = Room.query.filter(Room.id == rid).first()
         if room == None:
@@ -199,7 +202,9 @@ def joinroom(rid=None):
             user = User.query.filter(User.id == g.user.id).first()
             user.currentroom = room.id
             db.session.commit()
-            return Response(render_template('/rooms/room.html', room=room, chats=chats), status=203, mimetype='text/html')
+            others = [u.username for u in User.query.filter(User.currentroom == g.user.currentroom).all()]
+
+            return Response(render_template('/rooms/room.html', room=room, chats=chats, others=others), status=203, mimetype='text/html')
     return redirect(url_for("index"))
 
 @app.route('/leaveroom/')
@@ -255,9 +260,14 @@ def get_room():
         return json.dumps(g.user.currentroom, default=json_serial)
     else:
         abort(404)
+        
+@app.route("/chats")
+def get_chats():
+    return str(len(g.jchats))
 
 @app.route('/jchat')
 def get_jchat():
+#     return jsonify(g.jchats) #not serializable
     return json.dumps(g.jchats, default=json_serial)
 
 @app.route('/chat')
@@ -280,9 +290,6 @@ def add():
         flash("Error receiving message")
         return ('', 510)
 
-@app.route("/chats")
-def get_items():
-    return str(len(g.jchats))
 
 @app.errorhandler(403)
 @app.errorhandler(404)

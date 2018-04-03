@@ -6,17 +6,14 @@
 <meta name="author" content="Eric Laslo">
 <meta name="description" content="CS1520 Assignment 4 - ERL67">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
 <link rel="stylesheet" type="text/css" href="/static/style.css?{{ range(0, 99999) | random  }}">
 <script src="/static/color.js" type="text/javascript"></script>
-<script src="/static/ajax.js" type="text/javascript"></script>
-{# <script src="http://ericlaslo.com/assets/code/footerbar.js" type="text/javascript"></script> #}
 <title>{% block title %}ERL67 Chat{% endblock %}</title>
 {% block head %}
 {% endblock %}
 </head>
-<body id="container">
-<header>
+<body id="container" class="container">
+<header class=“col-lg-2”>
   {% with messages = get_flashed_messages() %}
 	{% if messages %}
 		<ul class="flashes" id="flashbox">
@@ -32,7 +29,6 @@
   {% if g.user %}
   		logged in as: {{ g.user.username }}<br/>
 	    <a href="{{ url_for('unlogger') }}">--sign out--</a>
-  		
     {% if g.user.id==1 %}
     	<a href="{{ url_for('rawstats')}}" style="font-size:60%">raw data</a>
     {% endif %}
@@ -42,14 +38,18 @@
         <a href="{{ url_for('exitroom') }}">leave room {{g.user.currentroom}}</a>
     {% endif %}
   {% else %}
-  	<h2>Login or Register for access</h2>
     <a href="{{ url_for('logger') }}">sign in</a>
     <a href="{{ url_for('signer') }}">register</a>   
   {% endif %}
 </header>
 
-<div id="page-main">
+<div id="page-main" class="col-lg-10 offset-lg-1">
 {% block body %}
+  {% if g.user %}
+  {% else %}
+  	<h2>Login or Register for access</h2>
+  {% endif %}
+
 {% endblock %}
 </div>
 
