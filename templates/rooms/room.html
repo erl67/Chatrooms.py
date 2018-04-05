@@ -15,7 +15,7 @@
 			{% endfor %}</h6>
 	
 			{% for m in chats %}
-				<li>{{ m }}</li>
+				<li>{{getName(m.creator)}} - {{ m }}</li>
 			{% endfor %}
 		
 			<textarea name="msg" rows="4" cols="50" minlength="1" maxlength="200" placeholder="Message" required/></textarea>

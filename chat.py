@@ -265,6 +265,14 @@ def get_room():
 def get_chats():
     return str(len(g.jchats))
 
+@app.route("/updates/<int:count>", methods=["POST"])
+def get_updates(count=None):
+    if g.user:
+        return json.dumps(g.user.currentroom, default=json_serial)
+    else:
+        abort(404)
+
+
 @app.route('/jchat')
 def get_jchat():
 #     return jsonify(g.jchats) #not serializable

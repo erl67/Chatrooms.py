@@ -46,6 +46,32 @@ function handleChat(httpRequest) {
 	if (httpRequest.readyState === XMLHttpRequest.DONE) {
 		if (httpRequest.status === 200) {
 			chats[chats.length] = httpRequest.responseText;
+			var updates = chats[chats.length-1] - chats[chats.length-2];
+			if (updates > 0) {
+				alert("New Chat length = " + chats[chats.length-1] + " new = " + updates);
+//				getUpdates(chats[chats.length-1] - chats[chats.length-2]);
+			} else if (chats.length > 10) {
+				chats = [chats[0]];
+			}
+		}
+	}
+}
+
+function getUpdates() {
+	var httpRequest = new XMLHttpRequest();
+
+	httpRequest.onreadystatechange = function() { 
+		handleUpdates(httpRequest)
+	};
+
+	httpRequest.open("POST", "/updates/"); //count
+	httpRequest.send();
+}
+
+function handleUpdates(httpRequest) {
+	if (httpRequest.readyState === XMLHttpRequest.DONE) {
+		if (httpRequest.status === 200) {
+			chats[chats.length] = httpRequest.responseText;
 			
 			if (chats[chats.length-1] > chats[0]) {
 				alert("New Chat");
@@ -93,11 +119,5 @@ function handleSendMsg(httpRequest, msg) {
 
 function poller() {
 	getChats();
-
-
-
 	window.setTimeout(poller, timeout);
 }
-
-
-
