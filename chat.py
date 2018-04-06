@@ -71,7 +71,7 @@ def before_request():
 #     eprint("g.user: " + str(g.user))
 #     eprint("g.rooms: " + str(g.rooms))
 #     eprint("g.chats: " + str(g.chats))
-    eprint("g.jchats: " + str(g.jchats))
+#     eprint("g.jchats: " + str(g.jchats))
 #     eprint("g.others: " + str(g.others))
     
         
@@ -173,7 +173,7 @@ def rawstats():
 
 @app.route('/')
 def index():
-    return Response(render_template('index.html'), status=203, mimetype='text/html')
+    return Response(render_template('index.html'), status=200, mimetype='text/html')
 
 @app.route('/rooms/')
 def rooms():
@@ -191,8 +191,11 @@ def rmroom():
         roomId = g.user.currentroom
         if roomId != None:
             room = Room.query.filter(Room.id==int(roomId)).first()
-            db.session.delete(room)
             try:
+                db.session.commit()
+                db.session.delete(room)
+                Chat.query.filter(Chat.room == roomId).delete()
+                User.query.filter(User.currentroom == roomId).update({'currentroom': 0})
                 db.session.commit()
                 flash("Deleted room")
             except Exception as e:
@@ -213,9 +216,8 @@ def joinroom(rid=None):
     elif (g.user.currentroom == rid):
         eprint(g.user.currentroom)
         room = Room.query.filter(Room.id == rid).first()
-#         chats = Chat.query.filter(Chat.room == room.id).order_by(Chat.created.asc()).all()
         chats = g.chats
-        return Response(render_template('/rooms/room.html', room=room, chats=chats, others=g.others), status=203, mimetype='text/html')
+        return Response(render_template('/rooms/room.html', room=room, chats=chats, others=g.others), mimetype='text/html')
     else:
         room = Room.query.filter(Room.id == rid).first()
         if room == None:
@@ -227,7 +229,7 @@ def joinroom(rid=None):
             db.session.commit()
             others = [u.username for u in User.query.filter(User.currentroom == g.user.currentroom).all()]
 
-            return Response(render_template('/rooms/room.html', room=room, chats=chats, others=others), status=203, mimetype='text/html')
+            return Response(render_template('/rooms/room.html', room=room, chats=chats, others=others), mimetype='text/html')
     return redirect(url_for("index"))
 
 @app.route('/leaveroom/')
@@ -275,7 +277,7 @@ def newroom():
                 flash("Room creation failed")
         else:
             flash("Must enter initial message")
-    return Response(render_template('/rooms/newRoom.html'), status=203, mimetype='text/html')
+    return Response(render_template('/rooms/newRoom.html'), mimetype='text/html')
 
 @app.route('/r')
 def get_room():
@@ -313,7 +315,6 @@ def get_updates(count=None):
         return json.dumps(updates, default=json_serial)
     else:
         abort(404)
-
 
 @app.route('/chat')
 def get_chat():

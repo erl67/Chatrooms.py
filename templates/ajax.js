@@ -1,5 +1,5 @@
 var timeoutID;
-var timeout = 5000;
+var timeout = 1000;
 var room = 0;
 var currentMsgs = 0;
 var newMsgs = 0;
@@ -70,8 +70,11 @@ function handleChat(httpRequest) {
 				//alert("New Chat length = " + newMsgs + " new = " + updates);
 				currentMsgs = newMsgs;
 				getUpdates(updates);
-			} 
-		}
+			}
+		}  
+	} else if (httpRequest.status === 203) {
+		alert("Room no longer exists ");
+        window.location.href = "../../"; 
 	}
 }
 
@@ -89,6 +92,7 @@ function getUpdates(count) {
 function handleUpdates(httpRequest) {
 	if (httpRequest.readyState === XMLHttpRequest.DONE) {
 		if (httpRequest.status === 200) {
+			
 			var table = document.getElementById('chat-table');
 			var updates = httpRequest.responseText;
 			updates = JSON.parse(updates);
@@ -147,7 +151,6 @@ function sendMsg() {
 function handleSendMsg(httpRequest, msg) {
 	if (httpRequest.readyState === XMLHttpRequest.DONE) {
 		if (httpRequest.status === 204) {
-			//alert(msg);
 			textarea.value = "";
 			poller();
 		} else {

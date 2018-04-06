@@ -60,8 +60,6 @@ class Chat(db.Model):
     creator = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     message = db.Column(db.String(200), unique=False, nullable=False)
-#     user = db.relationship('Chat', backref='user', lazy=True)
-
 
     def __init__(self, room, creator=None, created=None, message=None):
         self.room = room
