@@ -10,17 +10,30 @@
 	{% if room == [] %}
 		<h4>Room Not Found. This shouldn't happen</h4>
 	{% else %}	
-		<h6>Room Members:
-			{% for o in others %} {{o}}
-			{% endfor %}</h6>
-	
-			{% for m in chats %}
-				<li>{{getName(m.creator)}} - {{ m }}</li>
+		<h6 class="mb-2">Room Members:
+			{% for o in others %} 
+			<span class="mr-3">{{o}}</span>  
 			{% endfor %}
+		</h6>
+		<table id="chat-table" class="table table-bordered w-100">
+			<tr><th class="w-25 text-center">Commenter</th><th class="w-75 text-center">Message</th></tr>
+			{% for m in chats %}
+			{% if m.creator == g.user.id %}
+					<tr class="table-primary">
+			{% else %}
+					<tr class="table-secondary">
+			{% endif %}
+					<td class="w-25 text-center">{{getName(m.creator)}}</td>
+{#					<td>{{ m.created.strftime('%d %B %y') }}</td>#}
+					<td title="{{m.created.strftime('%c')}}">{{ m.message }}</td>
+				</tr>
+			{% endfor %}
+		</table>
 		
+		<div class="text-center">
 			<textarea name="msg" rows="4" cols="50" minlength="1" maxlength="200" placeholder="Message" required/></textarea>
-			<br/>
-			<button name="submitBtn" type="button">Submit Message</button>
+			<br/><button class="btn btn-outline-danger" name="submitBtn" type="button">Submit Message</button>
+		</div>
 	{% endif %}
 
 {% endblock %}

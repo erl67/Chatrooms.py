@@ -21,11 +21,22 @@ div {
 	padding: 1em;
 	margin: .5em;
 }
-header > a{
+#sidebar {
+	position:fixed;
+    top:0;
+    left:0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	font-size: smaller;
+	padding: 1.5em;
+	border: 1px dashed grey;
+}
+#sidebar > a {
 	margin-top: .5em;
 	margin-bottom: 1em;
 }
-header > a:first-of-type{
+#sidebar > a:first-of-type {
 	font-size:smaller;
 	margin-bottom: 1.5em;
 }
@@ -76,18 +87,6 @@ li {
 	padding: 1.5em;
 	list-style-type: circle;
 }
-
-header {
-    position:absolute;
-    top:0;
-    left:0;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-evenly;
-	font-size: smaller;
-	padding: 1.5em;
-	border: 1px dashed grey;
-}
 input:valid {
 	background-color: rgba(157, 223, 154, 0.9);
 }
@@ -115,4 +114,7 @@ form {
 }
 select {
 	padding: 1em;
+}
+.table-primary > td, .table-secondary > td {
+	color: #000;
 }
