@@ -53,14 +53,6 @@ a:hover {
 .room-list {
 	border: 1px dashed #c0c0c0;
 }
-.event-list-link {
-	margin-right: 2em;
-	text-decoration: none;
-}
-.event-list-item {
-	padding: .5em;
-	list-style-type: square;
-}
 ul {
 	display: flex; 
 	flex-direction: column;
@@ -71,13 +63,6 @@ li {
 	flex-direction: row;
 	justify-content: space-between;
 }
-.room-empty {
-	border: 2px dashed red;
-	padding: .1em;
-	font-variant: small-caps;
-	cursor: help;
-}
-
 .flashes {
 	margin-top: 0;
 	margin-left: 1em;
@@ -93,7 +78,7 @@ input:valid {
 input:invalid {
 	background-color: rgba(225, 85, 85, 0.7);
 }
-input, select {
+input {
 	margin-top: 1em;
 	margin-bottom: 2em;
 	padding: .3em;
@@ -112,9 +97,7 @@ form {
 	display: grid;
 	margin: 2em;
 }
-select {
-	padding: 1em;
-}
+
 .table-primary > td, .table-secondary > td {
 	color: #000;
 }
