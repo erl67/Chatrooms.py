@@ -97,7 +97,6 @@ form {
 	display: grid;
 	margin: 2em;
 }
-
 .table-primary > td, .table-secondary > td {
 	color: #000;
 }

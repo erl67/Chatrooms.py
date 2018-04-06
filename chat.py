@@ -298,7 +298,6 @@ def get_chats():
     if g.user:
         chatsJSON = Chat.as_json(g.user.currentroom)
         chats = len(chatsJSON)
-        eprint ("chats: " + str(chats))
         if chats == 0:
             flash("room no longer exists")
             return redirect(url_for("index"))
@@ -307,7 +306,7 @@ def get_chats():
     else:
         abort(404)
 
-@app.route("/updates/<int:count>", methods=["POST", "GET"]) #remove get after testing 
+@app.route("/updates/<int:count>", methods=["POST"]) 
 def get_updates(count=None):
     if g.user:
         updates = Chat.as_jsonUpdates(g.user.currentroom, count)

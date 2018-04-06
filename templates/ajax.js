@@ -85,7 +85,7 @@ function getUpdates(count) {
 		handleUpdates(httpRequest)
 	};
 
-	httpRequest.open("POST", "/updates/" + count); //count
+	httpRequest.open("POST", "/updates/" + count);
 	httpRequest.send();
 }
 
