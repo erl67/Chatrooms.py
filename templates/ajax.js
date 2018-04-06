@@ -1,11 +1,12 @@
 var timeoutID;
 var timeout = 5000;
 var room = 0;
-var chats = [];
+var currentMsgs = 0;
+var newMsgs = 0;
 var button;
 var textarea;
 var username;
-var uid = {{g.user.id}};
+var uid = {{g.user.id}};	//danger
 
 document.addEventListener("DOMContentLoaded", function() {
 	var httpRequest = new XMLHttpRequest();
@@ -62,14 +63,14 @@ function getChats() {
 function handleChat(httpRequest) {
 	if (httpRequest.readyState === XMLHttpRequest.DONE) {
 		if (httpRequest.status === 200) {
-			chats[chats.length] = httpRequest.responseText;
-			var updates = chats[chats.length-1] - chats[chats.length-2];
+			newMsgs = httpRequest.responseText;
+			if (currentMsgs == 0) currentMsgs = newMsgs;
+			var updates = newMsgs - currentMsgs;
 			if (updates > 0) {
-				//alert("New Chat length = " + chats[chats.length-1] + " new = " + updates);
+				//alert("New Chat length = " + newMsgs + " new = " + updates);
+				currentMsgs = newMsgs;
 				getUpdates(updates);
-			} else if (chats.length > 10) {
-				chats = [chats[0]];
-			}
+			} 
 		}
 	}
 }
@@ -98,18 +99,19 @@ function handleUpdates(httpRequest) {
 				var row = table.insertRow(-1);				
 				var cell1 = row.insertCell(0);
 				var cell2 = row.insertCell(1);
+				
 				cell1.classList.add('text-center');
 				cell1.classList.add('w-25');
-				alert ("uid" + uid + " " + updates[k].creator)
-				if (parseInt(uid) == parseInt(updates[k].creator)) {
-					cell1.innerHTML = username;
+				cell2.innerHTML = updates[k].message;
+				cell2.setAttribute('title', updates[k].created);
+				cell1.innerHTML = updates[k].name;
+
+				if (uid == updates[k].creator) {
 					row.classList.add('table-primary');
 				} else {
-					cell1.innerHTML = updates[k].creator;
 					row.classList.add('table-secondary');
 				}
-				cell2.innerHTML = updates[k].message;
-				cell2.setAttribute('title', updates[k].created)
+				
 			});
 			
 			var table = document.getElementById('chat-table');
@@ -119,7 +121,6 @@ function handleUpdates(httpRequest) {
 		}
 	}
 }
-
 
 function sendMsg() {
 	var httpRequest = new XMLHttpRequest();

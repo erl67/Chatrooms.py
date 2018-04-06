@@ -60,6 +60,8 @@ class Chat(db.Model):
     creator = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     message = db.Column(db.String(200), unique=False, nullable=False)
+#     user = db.relationship('Chat', backref='user', lazy=True)
+
 
     def __init__(self, room, creator=None, created=None, message=None):
         self.room = room
@@ -79,6 +81,18 @@ class Chat(db.Model):
             resultSet = Chat.query.filter(Chat.room == int(room)).order_by(Chat.id.asc()).all()
         for item in resultSet:
             json[item.id] = {col : getattr(item, col) for col in cols}
+        return json
+    
+    def as_jsonUpdates(room, count):
+        json = dict()
+        cols = Chat.__table__.columns.keys()
+        if room == None or count == None:
+            resultSet = Chat.query.order_by(Chat.id.asc()).all()
+        else:
+            resultSet = Chat.query.filter(Chat.room == int(room)).order_by(Chat.id.desc()).limit(count).all()[::-1]
+        for item in resultSet:
+            json[item.id] = {col : getattr(item, col) for col in cols}
+            json[item.id]['name'] = User.query.filter(User.id == item.creator).first().username;
         return json
     
     def Everything():

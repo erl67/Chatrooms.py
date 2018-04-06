@@ -2,7 +2,9 @@
 
 {% block title %} {{room.roomname}} - {{ super() }} {% endblock %}
 {% block head %}
-<script src="/static/ajax.js" type="text/javascript"></script>
+{#<script src="/static/ajax.js?{{ range(0, 99999) | random  }}" type="text/javascript"></script>#}
+<script src="{{ url_for('ajax') }}?{{ range(0, 99999) | random  }}" type="text/javascript"></script>
+
 {% endblock %}
 
 {% block body %}
@@ -32,8 +34,15 @@
 		
 		<div class="text-center">
 			<textarea name="msg" rows="4" cols="50" minlength="1" maxlength="200" placeholder="Message" required/></textarea>
-			<br/><button class="btn btn-outline-danger" name="submitBtn" type="button">Submit Message</button>
+			<br/><button class="btn btn-success" name="submitBtn" type="button">Submit Message</button>
 		</div>
+		
+		{% if room.creator == g.user.id %}
+			<form class="mt-5" method="post" action="{{url_for("rmroom")}}">
+				<button class="btn btn-danger col-8 offset-2" name="removeBtn" type="submit">Delete Room</button>
+			</form>
+		{% endif %}
+	
 	{% endif %}
 
 {% endblock %}

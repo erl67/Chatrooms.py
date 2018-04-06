@@ -1,6 +1,6 @@
 #erl67
 REBUILD_DB = False
-FDEBUG = True
+FDEBUG = False
 
 import os, re, json
 from sys import stderr
@@ -20,6 +20,7 @@ def create_app():
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SECRET_KEY='erl67_',
         TEMPLATES_AUTO_RELOAD=True,
+        USE_threaded = True,
         SQLALCHEMY_DATABASE_URI='sqlite:///' + DB_NAME
     ))
     
@@ -67,13 +68,11 @@ def before_request():
             else:
                 g.chats = Chat.query.limit(10).all()
                 g.jchats = Chat.as_json()
-#         g.jchats = Chat.as_json()
-#         g.jchats = Chat.as_json().query.filter(Chat.room == g.user.currentroom)
 #     eprint("g.user: " + str(g.user))
 #     eprint("g.rooms: " + str(g.rooms))
 #     eprint("g.chats: " + str(g.chats))
     eprint("g.jchats: " + str(g.jchats))
-    eprint("g.others: " + str(g.others))
+#     eprint("g.others: " + str(g.others))
     
         
 @app.before_first_request
@@ -183,6 +182,29 @@ def rooms():
     else: 
         return redirect(url_for("joinroom", rid=g.user.currentroom))
     abort(404)
+    
+@app.route("/deleteroom/", methods=["GET", "POST"])
+def rmroom():
+    if not g.user:
+        abort(404)
+    if request.method == "POST":
+        roomId = g.user.currentroom
+        if roomId != None:
+            room = Room.query.filter(Room.id==int(roomId)).first()
+            db.session.delete(room)
+            try:
+                db.session.commit()
+                flash("Deleted room")
+            except Exception as e:
+                db.session.rollback()
+                eprint(str(e))
+                flash("Error deleting room")
+            return redirect(url_for("index"))
+        else:
+            flash("Cannot find room to delete")
+            abort(404)
+    else:
+        abort(404)
 
 @app.route('/room/<int:rid>')
 def joinroom(rid=None):
@@ -191,7 +213,8 @@ def joinroom(rid=None):
     elif (g.user.currentroom == rid):
         eprint(g.user.currentroom)
         room = Room.query.filter(Room.id == rid).first()
-        chats = Chat.query.filter(Chat.room == room.id).order_by(Chat.created.asc()).all()
+#         chats = Chat.query.filter(Chat.room == room.id).order_by(Chat.created.asc()).all()
+        chats = g.chats
         return Response(render_template('/rooms/room.html', room=room, chats=chats, others=g.others), status=203, mimetype='text/html')
     else:
         room = Room.query.filter(Room.id == rid).first()
@@ -261,22 +284,36 @@ def get_room():
     else:
         abort(404)
         
+@app.route('/u')
+def get_user():
+    if g.user:
+        return json.dumps(g.user.username, default=json_serial)
+    else:
+        abort(404)
+        
 @app.route("/chats")
 def get_chats():
-    return str(len(g.jchats))
-
-@app.route("/updates/<int:count>", methods=["POST"])
-def get_updates(count=None):
     if g.user:
-        return json.dumps(g.user.currentroom, default=json_serial)
+        chatsJSON = Chat.as_json(g.user.currentroom)
+        chats = len(chatsJSON)
+        eprint ("chats: " + str(chats))
+        if chats == 0:
+            flash("room no longer exists")
+            return redirect(url_for("index"))
+        else:
+            return str(chats)
     else:
         abort(404)
 
+@app.route("/updates/<int:count>", methods=["POST", "GET"]) #remove get after testing 
+def get_updates(count=None):
+    if g.user:
+        updates = Chat.as_jsonUpdates(g.user.currentroom, count)
+        eprint("updates" + str(updates))
+        return json.dumps(updates, default=json_serial)
+    else:
+        abort(404)
 
-@app.route('/jchat')
-def get_jchat():
-#     return jsonify(g.jchats) #not serializable
-    return json.dumps(g.jchats, default=json_serial)
 
 @app.route('/chat')
 def get_chat():
@@ -298,6 +335,9 @@ def add():
         flash("Error receiving message")
         return ('', 510)
 
+@app.route('/ajax.js')
+def ajax():
+    return Response(render_template('ajax.js'), status=200, mimetype='application/javascript')
 
 @app.errorhandler(403)
 @app.errorhandler(404)
